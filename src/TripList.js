@@ -12,19 +12,8 @@ import { DateRangePicker } from 'react-dates';
 export default class TripList extends React.Component {
 
   state = {
-    trips: [],
     loading: true,// Local signed-in state.
     form: {},
-  }
-
-  componentWillMount(){
-    let tripsRef = fire.database().ref('balboa/trips')
-    tripsRef.on('child_added', snapshot => {
-      let trip = { ...snapshot.val(), uid: snapshot.key }
-      this.setState({ trips: [trip].concat(this.state.trips) }, () => {
-        console.log(this.state.trips)
-      });
-    })
   }
 
   onSuggesSelect = (data) => {

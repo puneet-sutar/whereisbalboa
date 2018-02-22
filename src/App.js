@@ -37,7 +37,7 @@ export default class App extends React.Component {
       });
     })
     fire.database().ref('balboa/trips').on('child_added', snapshot => {
-      const trip = snapshot.val()
+      const trip = { ...snapshot.val(), id: snapshot.key }
       this.setState({ trips: [trip, ...this.state.trips] }, () => {
         console.log(this.state.trips)
       });

@@ -4,15 +4,25 @@ import fire from './fire';
 import { find } from 'underscore'
 import moment from 'moment'
 
-const AnyReactComponent = ({ text }) => {
+const AnyReactComponent = ({ text, isSelectedTrip, $hover }) => {
+  let markerSize = 20;
+  let otherStyle = {}
+  if ($hover || isSelectedTrip) {
+    markerSize = 70;
+    otherStyle.zIndex = 1000;
+  }
+  let pinStyle = {...{
+    position: 'absolute',
+    width: markerSize,
+    height: markerSize,
+    left: -markerSize / 2,
+    top: -markerSize / 2,
+    borderRadius: "50%",
+  }, ...otherStyle }
+
+
   return (
-    <div>
-      <img src="http://c8.alamy.com/comp/J9C0AC/sheep-face-flat-icon-J9C0AC.jpg"
-           eight="20"
-           width="20"
-           style={{borderRadius: "50%"}} />
-      {text}
-    </div>
+    <img style={pinStyle} src="https://firebasestorage.googleapis.com/v0/b/whereisbalboa.appspot.com/o/20180113_182004.jpg?alt=media&token=d80a4c9c-00fb-4f27-b3a0-e346522cd293"/>
   )
 }
 
@@ -29,17 +39,6 @@ export default class SimpleMap extends Component {
 
   state = {
     trips: [],
-    selectedTrip: null,
-  }
-
-  componentWillMount(){
-    const tripsRef = fire.database().ref('balboa/trips')
-    tripsRef.on('child_added', snapshot => {
-      const trip = { ...parseTripProp(snapshot.val()), id: snapshot.key }
-      this.setState({ trips: [trip].concat(this.state.trips) }, () => {
-        console.log(this.state.trips)
-      })
-    })
   }
 
   // TODO : use split coordinates
@@ -48,20 +47,25 @@ export default class SimpleMap extends Component {
     zoom: 0
   }
 
+  getPrasedTrips = () => {
+    return this.props.trips.map( trip => parseTripProp(trip))
+  }
   onSelectTrip = (trip) => {
     this.setState({ selectedTrip: trip })
   }
 
   render() {
 
-    const { trips, selectedTrip } = this.state
+    const { selectedTrip } = this.state
     const { users } = this.props
+    const trips = this.getPrasedTrips()
+
     return (
       <div style={ {margin: "0 auto", width: "100%"} }>
         <div className="row">
           <div className="col-sm-9">
             <GoogleMapReact
-              defaultCenter={trips[0] || this.props.center}
+              defaultCenter={this.props.center}
               defaultZoom={this.props.zoom}
               center={selectedTrip}
             >
@@ -73,6 +77,7 @@ export default class SimpleMap extends Component {
                       lat={lat}
                       lng={lng}
                       text={name}
+                      isSelectedTrip={selectedTrip && selectedTrip.id === id}
                     />
                   )
                 })}
