@@ -8,17 +8,17 @@ const AnyReactComponent = ({ text, isSelectedTrip, $hover }) => {
   let markerSize = 20;
   let otherStyle = {}
   if ($hover || isSelectedTrip) {
-    markerSize = 70;
+    markerSize = 40;
     otherStyle.zIndex = 1000;
   }
   let pinStyle = {...{
-    position: 'absolute',
-    width: markerSize,
-    height: markerSize,
-    left: -markerSize / 2,
-    top: -markerSize / 2,
-    borderRadius: "50%",
-  }, ...otherStyle }
+      position: 'absolute',
+      width: markerSize,
+      height: markerSize,
+      left: -markerSize / 2,
+      top: -markerSize / 2,
+      borderRadius: "50%",
+    }, ...otherStyle }
 
 
   return (
@@ -31,8 +31,8 @@ const parseTripProp = ({ longitude, latitude, endTimestamp, startTimestamp, ...o
     ...otherProps,
     lat: latitude,
     lng: longitude,
-    endTime: moment(endTimestamp).format("DD-MMM-YYYY"),
-    startTime: moment(startTimestamp).format("DD-MMM-YYYY"),
+    endTime: moment.unix(endTimestamp).format("DD-MMM-YYYY"),
+    startTime: moment.unix(startTimestamp).format("DD-MMM-YYYY"),
   }
 }
 export default class SimpleMap extends Component {
@@ -54,6 +54,10 @@ export default class SimpleMap extends Component {
     this.setState({ selectedTrip: trip })
   }
 
+  onFilterChange = () => {
+
+  }
+
   render() {
 
     const { selectedTrip } = this.state
@@ -63,7 +67,12 @@ export default class SimpleMap extends Component {
     return (
       <div style={ {margin: "0 auto", width: "100%"} }>
         <div className="row">
-          <div className="col-sm-9">
+          <div className="col-sm-12">
+            <Filters />
+          </div>
+        </div>
+        <div className="row">
+          <div style={{padding: 0, borderRadius: 0}} className="col-sm-9">
             <GoogleMapReact
               defaultCenter={this.props.center}
               defaultZoom={this.props.zoom}
@@ -83,7 +92,7 @@ export default class SimpleMap extends Component {
                 })}
             </GoogleMapReact>
           </div>
-          <div className="col-sm-3">
+          <div style={{padding: 0}} className="col-sm-3">
             <TripList trips={trips} users={users} selectedTrip={selectedTrip} onSelectTrip={this.onSelectTrip}/>
           </div>
         </div>
@@ -116,7 +125,7 @@ const TripItem = ({ trip, users, onSelectTrip, selectedTrip }) => {
   let className = "list-group-item"
   if (selectedTrip.id == trip.id) className = `${className} active`
   return (
-    <a href="#" onClick={() => onSelectTrip(trip)} className={className}>
+    <a href="#" onClick={() => onSelectTrip(trip)} className={className} style={{borderRadius: 0}}>
       <div className="row">
         <div className="col-sm-3">
           { displayName }
@@ -131,5 +140,15 @@ const TripItem = ({ trip, users, onSelectTrip, selectedTrip }) => {
         </div>
       </div>
     </a>
+  )
+}
+
+
+const Filters = ({ onChange }) => {
+
+  return (
+    <div>
+      <h1>Filters</h1>
+    </div>
   )
 }
