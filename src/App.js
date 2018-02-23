@@ -17,7 +17,7 @@ export default class App extends React.Component {
     // TODO :: add more user info like hometown
     this.setState({ user })
     fire.database().ref(`balboa/users/${user.uid}`).set({
-      displayName: user.displayName,
+      name: user.name,
       email: user.email,
       uid: user.uid,
     }, () => { this.setState({ loading: false }) });

@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import GoogleMapReact from 'google-map-react';
 import fire from './fire';
-import { find } from 'underscore'
+import { find, isEmpty, contains, sortBy } from 'underscore'
 import moment from 'moment'
+import Select from 'react-select';
+import 'react-select/dist/react-select.css';
+import DateRangeField from './DateRangeField'
 
 const AnyReactComponent = ({ text, isSelectedTrip, $hover }) => {
   let markerSize = 20;
@@ -33,13 +36,19 @@ const parseTripProp = ({ longitude, latitude, endTimestamp, startTimestamp, ...o
     lng: longitude,
     endTime: moment.unix(endTimestamp).format("DD-MMM-YYYY"),
     startTime: moment.unix(startTimestamp).format("DD-MMM-YYYY"),
+    startTimestamp,
+    endTimestamp,
   }
 }
 export default class SimpleMap extends Component {
 
   state = {
     trips: [],
+    filters: {},
+    timelineTrips: []
   }
+
+  timelineTimer = null
 
   // TODO : use split coordinates
   static defaultProps = {
@@ -47,20 +56,56 @@ export default class SimpleMap extends Component {
     zoom: 0
   }
 
+  getFilterTrips = () => {
+    const { users, dateRange } = this.state.filters
+    let { trips } = this.props
+    if (users && !isEmpty(users)) {
+      const userUids = users.map(user => user.value)
+      trips = trips.filter(trip => contains(userUids, trip.uid))
+    }
+
+    if (dateRange && dateRange.startDate) {
+      const startTimestamp = dateRange.startDate.unix()
+      trips = trips.filter(trip => (trip.startTimestamp >= startTimestamp))
+    }
+
+    if (dateRange && dateRange.endDate) {
+      const endTimestamp = dateRange.endDate.unix()
+      trips = trips.filter(trip =>(trip.startTimestamp <= endTimestamp))
+    }
+    return trips
+  }
+
   getPrasedTrips = () => {
-    return this.props.trips.map( trip => parseTripProp(trip))
+    return sortBy(this.getFilterTrips(), 'startTimestamp').map( trip => parseTripProp(trip))
   }
   onSelectTrip = (trip) => {
     this.setState({ selectedTrip: trip })
   }
 
-  onFilterChange = () => {
+  onFilterChange = (event) => {
+    console.log(event)
+    const { target: { name, value } } = event
+    const { filters } = this.state
+    this.setState({ filters: { ...filters, [name]: value } })
+  }
 
+  onFilterClear = () => {
+    this.setState({ filters: {} })
+  }
+
+  onShowTimeline = () => {
+    this.setState({ timelineTrips: [] })
+  }
+
+  userWithTrips = () => {
+    const userUidsWithTrips = this.props.trips.map(trip => trip.uid)
+    return this.props.users.filter((user) => contains(userUidsWithTrips, user.uid))
   }
 
   render() {
 
-    const { selectedTrip } = this.state
+    const { selectedTrip, filters } = this.state
     const { users } = this.props
     const trips = this.getPrasedTrips()
 
@@ -68,15 +113,20 @@ export default class SimpleMap extends Component {
       <div style={ {margin: "0 auto", width: "100%"} }>
         <div className="row">
           <div className="col-sm-12">
-            <Filters />
+            <Filters onChange={this.onFilterChange}
+                     users={this.userWithTrips()}
+                     value={filters}
+                     onClear={this.onFilterClear}
+            />
           </div>
         </div>
         <div className="row">
-          <div style={{padding: 0, borderRadius: 0}} className="col-sm-9">
+          <div className="col-sm-9">
             <GoogleMapReact
               defaultCenter={this.props.center}
               defaultZoom={this.props.zoom}
               center={selectedTrip}
+              options={{fullscreen: true}}
             >
               {
                 trips.map(({ lat, lng, name, id }) => {
@@ -121,14 +171,15 @@ const TripItem = ({ trip, users, onSelectTrip, selectedTrip }) => {
   const { name, lat, lng, endTime, startTime } = trip
   if (!user || !trip) return null
   selectedTrip = selectedTrip || {}
-  const { displayName } = user
+  const { name: userName } = user
+
   let className = "list-group-item"
   if (selectedTrip.id == trip.id) className = `${className} active`
   return (
     <a href="#" onClick={() => onSelectTrip(trip)} className={className} style={{borderRadius: 0}}>
       <div className="row">
         <div className="col-sm-3">
-          { displayName }
+          { userName }
         </div>
         <div className="col-sm-9">
           <div className="col-sm-12">
@@ -144,11 +195,59 @@ const TripItem = ({ trip, users, onSelectTrip, selectedTrip }) => {
 }
 
 
-const Filters = ({ onChange }) => {
+const Filters = ({ users, onChange, value, onClear }) => {
 
   return (
     <div>
       <h1>Filters</h1>
+      <div className="row">
+        <div className="col-sm-3">
+          <UserFilter value={value.users} users={users} onChange={onChange} />
+        </div>
+        <div className="col-sm-3">
+          <DateFilter value={value.dateRange} onChange={onChange} />
+        </div>
+        <div className="col-sm-1">
+          <a href="#clear" onClick={onClear} style={{fontSize: 20, color: "red"}}>
+            <span className="glyphicon glyphicon-remove-circle" />
+          </a>
+        </div>
+        <div className="col-sm-1">
+          <a href="#clear" className="btn btn-primary">
+            Timeline
+          </a>
+        </div>
+      </div>
     </div>
   )
 }
+
+const UserFilter = ({ value, users, onChange }) => {
+
+  const options = users.map(
+    (user) => {
+      return { value: user.uid, label: user.name }
+    }
+  )
+  return (
+    <Select
+      name="users"
+      value={value}
+      onChange={selectedOptions => onChange({ target: { name: "users", value: selectedOptions} })}
+      multi
+      options={options}
+    />
+  )
+}
+
+const DateFilter = ({ value, onChange }) => {
+
+  return (
+    <DateRangeField
+      value={value}
+      name="dateRange"
+      onChange={onChange}
+    />
+  )
+}
+
