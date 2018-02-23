@@ -33,7 +33,6 @@ export default class App extends React.Component {
     fire.database().ref('balboa/users').on('child_added', snapshot => {
       const user = {
         ...snapshot.val(),
-        imgUrl: "https://firebasestorage.googleapis.com/v0/b/whereisbalboa.appspot.com/o/20180113_182004.jpg?alt=media&token=d80a4c9c-00fb-4f27-b3a0-e346522cd293",
       }
       this.setState({ users: [user, ...this.state.users] }, () => {
         console.log(this.state.users)

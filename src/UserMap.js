@@ -118,6 +118,9 @@ export default class SimpleMap extends Component {
     const { timelineTrips } = this.state
     if (timelineTrips.length < trips.length) {
       this.setState({ timelineTrips: [...timelineTrips, trips[timelineTrips.length]] })
+    } else {
+      this.setState({ timelineTrips: [], timelineMode: false  })
+      clearInterval(this.timelineTimer)
     }
   }
 
@@ -157,6 +160,7 @@ export default class SimpleMap extends Component {
                      onToggleTimeline={this.onToggleTimeline}
                      toggleRYMode={this.toggleRYMode}
                      togglePostRYMode={this.togglePostRYMode}
+                     timelineMode={timelineMode}
             />
           </div>
         </div>
@@ -213,7 +217,7 @@ const TripItem = ({ trip, users, onSelectTrip, selectedTrip }) => {
   const { name, lat, lng, endTime, startTime } = trip
   if (!user || !trip) return null
   selectedTrip = selectedTrip || {}
-  const { name: userName } = user
+  const { name: userName, imgUrl } = user
 
   let className = "list-group-item"
   if (selectedTrip.id == trip.id) className = `${className} active`
@@ -221,7 +225,7 @@ const TripItem = ({ trip, users, onSelectTrip, selectedTrip }) => {
     <a href="#" onClick={() => onSelectTrip(trip)} className={className} style={{borderRadius: 0}}>
       <div className="row">
         <div className="col-sm-3">
-          { userName }
+          <img src={imgUrl} style={{ width: 60, height: 60, borderRadius: "50%" }} alt={userName} />
         </div>
         <div className="col-sm-9">
           <div className="col-sm-12">
@@ -237,7 +241,7 @@ const TripItem = ({ trip, users, onSelectTrip, selectedTrip }) => {
 }
 
 
-const Filters = ({ users, onChange, value, onClear, onToggleTimeline, toggleRYMode, togglePostRYMode }) => {
+const Filters = ({ users, onChange, value, onClear, onToggleTimeline, toggleRYMode, togglePostRYMode, timelineMode }) => {
 
   return (
     <div>
