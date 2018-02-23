@@ -7,7 +7,7 @@ import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import DateRangeField from './DateRangeField'
 
-const AnyReactComponent = ({ text, isSelectedTrip, $hover }) => {
+const AnyReactComponent = ({ text, isSelectedTrip, $hover, user }) => {
   let markerSize = 20;
   let otherStyle = {}
   if ($hover || isSelectedTrip) {
@@ -25,7 +25,7 @@ const AnyReactComponent = ({ text, isSelectedTrip, $hover }) => {
 
 
   return (
-    <img style={pinStyle} src="https://firebasestorage.googleapis.com/v0/b/whereisbalboa.appspot.com/o/20180113_182004.jpg?alt=media&token=d80a4c9c-00fb-4f27-b3a0-e346522cd293"/>
+    <img style={pinStyle} src={user.imgUrl}/>
   )
 }
 
@@ -169,13 +169,15 @@ export default class SimpleMap extends Component {
               options={{fullscreen: true}}
             >
               {
-                trips.map(({ lat, lng, name, id }) => {
+                trips.map(({ lat, lng, name, id, uid }) => {
+                  const user = find(users, user => uid === user.uid)
                   return (
                     <AnyReactComponent
                       key={id}
                       lat={lat}
                       lng={lng}
                       text={name}
+                      user={user}
                       isSelectedTrip={selectedTrip && selectedTrip.id === id}
                     />
                   )
@@ -248,7 +250,7 @@ const Filters = ({ users, onChange, value, onClear, onToggleTimeline, toggleRYMo
           <DateFilter value={value.dateRange} onChange={onChange} />
         </div>
         <div className="col-sm-1" onClick={onClear}>
-          <a href="#clear" className="btn btn-primary" style={{ color: "red" }}>
+          <a href="#clear" style={{ color: "red" }}>
             <span className="glyphicon glyphicon-remove-circle" />
           </a>
         </div>
@@ -263,7 +265,7 @@ const Filters = ({ users, onChange, value, onClear, onToggleTimeline, toggleRYMo
           </a>
         </div>
         <div className="col-sm-1" onClick={onToggleTimeline}>
-          <a href="#clear" className="btn btn-primary">
+          <a href="#timeline" className="btn btn-primary">
             Timeline
           </a>
         </div>
