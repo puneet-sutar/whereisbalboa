@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import GoogleMapReact from 'google-map-react';
 import fire from './fire';
-import { find, isEmpty, contains, sortBy } from 'underscore'
+import { find, isEmpty, contains, sortBy, last, first } from 'underscore'
 import moment from 'moment'
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
@@ -45,7 +45,8 @@ export default class SimpleMap extends Component {
   state = {
     trips: [],
     filters: {},
-    timelineTrips: []
+    timelineTrips: [],
+    timelineMode: false,
   }
 
   timelineTimer = null
@@ -59,6 +60,10 @@ export default class SimpleMap extends Component {
   getFilterTrips = () => {
     const { users, dateRange } = this.state.filters
     let { trips } = this.props
+
+    const userUidWithTrips = this.userWithTrips().map(user => user.uid)
+
+    trips = trips.filter(trip => contains(userUidWithTrips, trip.uid))
     if (users && !isEmpty(users)) {
       const userUids = users.map(user => user.value)
       trips = trips.filter(trip => contains(userUids, trip.uid))
@@ -86,7 +91,8 @@ export default class SimpleMap extends Component {
   onFilterChange = (event) => {
     console.log(event)
     const { target: { name, value } } = event
-    const { filters } = this.state
+    const { filters, timelineMode } = this.state
+    if (timelineMode) return
     this.setState({ filters: { ...filters, [name]: value } })
   }
 
@@ -94,8 +100,37 @@ export default class SimpleMap extends Component {
     this.setState({ filters: {} })
   }
 
-  onShowTimeline = () => {
-    this.setState({ timelineTrips: [] })
+  onToggleTimeline = () => {
+    const { timelineMode } = this.state
+    if (timelineMode) {
+      this.setState({ timelineTrips: [], timelineMode: false  })
+      clearInterval(this.timelineTimer)
+    } else {
+      this.setState({ timelineTrips: [first(this.getPrasedTrips())], timelineMode: true  })
+      this.timelineTimer = setInterval(this.onTimelineTick, 2000)
+    }
+
+  }
+
+  onTimelineTick = () => {
+    // Imporve timeline algo to use stack
+    const trips = this.getPrasedTrips()
+    const { timelineTrips } = this.state
+    if (timelineTrips.length < trips.length) {
+      this.setState({ timelineTrips: [...timelineTrips, trips[timelineTrips.length]] })
+    }
+  }
+
+  togglePostRYMode = () => {
+    const startDate = moment("03-04-2018", "MM-DD-YYYY")
+    const endDate = null
+    this.onFilterChange({ target: { name: "dateRange", value: { startDate, endDate }} })
+  }
+
+  toggleRYMode = () => {
+    const startDate = moment("03-04-2017", "MM-DD-YYYY")
+    const endDate = moment("03-03-2018", "MM-DD-YYYY")
+    this.onFilterChange({ target: { name: "dateRange", value: { startDate, endDate }} })
   }
 
   userWithTrips = () => {
@@ -105,9 +140,11 @@ export default class SimpleMap extends Component {
 
   render() {
 
-    const { selectedTrip, filters } = this.state
+    const { filters, timelineMode, timelineTrips } = this.state
+    let { selectedTrip } = this.state
     const { users } = this.props
-    const trips = this.getPrasedTrips()
+    const trips = timelineMode ? timelineTrips : this.getPrasedTrips()
+    selectedTrip = timelineMode ? last(timelineTrips) : (selectedTrip || trips[0])
 
     return (
       <div style={ {margin: "0 auto", width: "100%"} }>
@@ -117,6 +154,9 @@ export default class SimpleMap extends Component {
                      users={this.userWithTrips()}
                      value={filters}
                      onClear={this.onFilterClear}
+                     onToggleTimeline={this.onToggleTimeline}
+                     toggleRYMode={this.toggleRYMode}
+                     togglePostRYMode={this.togglePostRYMode}
             />
           </div>
         </div>
@@ -143,7 +183,7 @@ export default class SimpleMap extends Component {
             </GoogleMapReact>
           </div>
           <div style={{padding: 0}} className="col-sm-3">
-            <TripList trips={trips} users={users} selectedTrip={selectedTrip} onSelectTrip={this.onSelectTrip}/>
+            <TripList key={timelineMode} trips={trips} users={users} selectedTrip={selectedTrip} onSelectTrip={this.onSelectTrip}/>
           </div>
         </div>
       </div>
@@ -195,7 +235,7 @@ const TripItem = ({ trip, users, onSelectTrip, selectedTrip }) => {
 }
 
 
-const Filters = ({ users, onChange, value, onClear }) => {
+const Filters = ({ users, onChange, value, onClear, onToggleTimeline, toggleRYMode, togglePostRYMode }) => {
 
   return (
     <div>
@@ -207,12 +247,22 @@ const Filters = ({ users, onChange, value, onClear }) => {
         <div className="col-sm-3">
           <DateFilter value={value.dateRange} onChange={onChange} />
         </div>
-        <div className="col-sm-1">
-          <a href="#clear" onClick={onClear} style={{fontSize: 20, color: "red"}}>
+        <div className="col-sm-1" onClick={onClear}>
+          <a href="#clear" className="btn btn-primary" style={{ color: "red" }}>
             <span className="glyphicon glyphicon-remove-circle" />
           </a>
         </div>
-        <div className="col-sm-1">
+        <div className="col-sm-1" onClick={toggleRYMode}>
+          <a href="#rymode" className="btn btn-primary">
+            RY year
+          </a>
+        </div>
+        <div className="col-sm-1" onClick={togglePostRYMode}>
+          <a href="#postrymode" className="btn btn-primary">
+            Post RY year
+          </a>
+        </div>
+        <div className="col-sm-1" onClick={onToggleTimeline}>
           <a href="#clear" className="btn btn-primary">
             Timeline
           </a>
