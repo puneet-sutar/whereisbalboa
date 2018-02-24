@@ -196,11 +196,7 @@ export default class SimpleMap extends Component {
             </div>
           </div>
           <div style={{padding: 0}} className="col-sm-3">
-            <div className="panel">
-              <div className="panel-body">
-                <TripList key={timelineMode} trips={trips} users={users} selectedTrip={selectedTrip} onSelectTrip={this.onSelectTrip}/>
-              </div>
-            </div>
+            <TripList key={timelineMode} trips={trips} users={users} selectedTrip={selectedTrip} onSelectTrip={this.onSelectTrip}/>
           </div>
         </div>
       </div>
@@ -212,7 +208,7 @@ const TripList = (props) => {
   const { trips } = props
 
   return (
-    <ul className="list-group">
+    <ul className="list-group trip-list">
       {
         trips.map((trip) => {
           return <TripItem {...props} trip={trip} key={trip.id} />
@@ -263,22 +259,28 @@ const Filters = ({ users, onChange, value, onClear, onToggleTimeline, toggleRYMo
         <div className="col-sm-3">
           <DateFilter value={value.dateRange} onChange={onChange} />
         </div>
-        <div className="col-sm-1">
-          <a href="#clear" onClick={onClear} style={{ color: "red" }}>
-            <span className="glyphicon glyphicon-remove-circle" />
-          </a>
-        </div>
-        <div className="col-sm-3">
-          <div className="btn-group">
-            <button onClick={toggleRYMode} className="btn btn-primary">
-              RY year
-            </button>
-            <button onClick={togglePostRYMode} className="btn btn-primary">
-              Post RY year
-            </button>
-            <button onClick={onToggleTimeline} className="btn btn-primary">
-              Timeline
-            </button>
+        <div className="col-sm-4">
+          <div className="btn-toolbar">
+            <div className="btn-group">
+              <button onClick={toggleRYMode} className="btn btn-primary">
+                RY
+              </button>
+            </div>
+            <div className="btn-group">
+              <button onClick={togglePostRYMode} className="btn btn-primary">
+                Post RY
+              </button>
+            </div>
+            <div className="btn-group">
+              <button onClick={onClear} className="btn btn-danger">
+                <div className="glyphicon glyphicon-remove-circle" /> Clear Filters
+              </button>
+            </div>
+            <div className="btn-group">
+              <button onClick={onToggleTimeline} className="btn btn-success">
+                <div className="glyphicon glyphicon-play-circle" /> Play Timeline
+              </button>
+            </div>
           </div>
         </div>
       </div>

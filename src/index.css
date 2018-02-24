@@ -20,5 +20,12 @@
 }
 
 .google-map-container {
-    padding: 0;
+    position: fixed;
+    height: 75%;
+}
+
+.trip-list {
+    position: fixed;
+    height: 90%;
+    overflow: scroll;
 }
