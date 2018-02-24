@@ -23,6 +23,7 @@
     "react-select": "^1.2.1",
     "react-sidebar": "^2.3.2",
     "react-table": "^6.7.6",
+    "toastr": "^2.1.4",
     "underscore": "^1.8.3"
   },
   "devDependencies": {

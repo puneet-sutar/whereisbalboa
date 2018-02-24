@@ -3,6 +3,7 @@ import Navbar from './Navbar'
 import SignInScreen from './SignInScreen'
 import firebase from 'firebase'
 import fire from './fire'
+import './index.css'
 
 export default class App extends React.Component {
 
@@ -14,10 +15,9 @@ export default class App extends React.Component {
   }
 
   signInSuccess = (user) => {
-    // TODO :: add more user info like hometown
     this.setState({ user })
     fire.database().ref(`balboa/users/${user.uid}`).set({
-      name: user.name,
+      name: 'Puneet Sutar',
       email: user.email,
       uid: user.uid,
     }, () => { this.setState({ loading: false }) });
@@ -53,7 +53,7 @@ export default class App extends React.Component {
       return <div>Loading...</div>
     else if (user) {
       return (
-        <div>
+        <div className="main-content">
           <Navbar />
           <div className={containerClassName}>
             { React.cloneElement(this.props.children, { ...this.state  }) }

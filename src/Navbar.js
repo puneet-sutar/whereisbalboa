@@ -3,7 +3,7 @@ import NavLink from './NavLink'
 
 const Navbar = () => {
   return (
-    <nav className="navbar navbar-default">
+    <nav className="navbar navbar-primary">
       <div className="container-fluid">
         <div className="navbar-header">
           <NavLink className="navbar-brand" to="/" onlyActiveOnIndex>WhereIsBalboa</NavLink>
@@ -12,6 +12,7 @@ const Navbar = () => {
           <li><NavLink to="/" onlyActiveOnIndex>Home</NavLink></li>
           <li><NavLink to="/triplist">Trip List</NavLink></li>
           <li><NavLink to="/map">Global Map</NavLink></li>
+          <li><NavLink to="/Profile">Profile</NavLink></li>
         </ul>
       </div>
     </nav>

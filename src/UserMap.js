@@ -245,7 +245,6 @@ const Filters = ({ users, onChange, value, onClear, onToggleTimeline, toggleRYMo
 
   return (
     <div>
-      <h1>Filters</h1>
       <div className="row">
         <div className="col-sm-3">
           <UserFilter value={value.users} users={users} onChange={onChange} />
@@ -253,23 +252,23 @@ const Filters = ({ users, onChange, value, onClear, onToggleTimeline, toggleRYMo
         <div className="col-sm-3">
           <DateFilter value={value.dateRange} onChange={onChange} />
         </div>
-        <div className="col-sm-1" onClick={onClear}>
-          <a href="#clear" style={{ color: "red" }}>
+        <div className="col-sm-1">
+          <a href="#clear" onClick={onClear} style={{ color: "red" }}>
             <span className="glyphicon glyphicon-remove-circle" />
           </a>
         </div>
-        <div className="col-sm-1" onClick={toggleRYMode}>
-          <a href="#rymode" className="btn btn-primary">
+        <div className="col-sm-1">
+          <a href="#rymode" onClick={toggleRYMode} className="btn btn-primary">
             RY year
           </a>
         </div>
-        <div className="col-sm-1" onClick={togglePostRYMode}>
-          <a href="#postrymode" className="btn btn-primary">
+        <div className="col-sm-1">
+          <a href="#postrymode" onClick={togglePostRYMode} className="btn btn-primary">
             Post RY year
           </a>
         </div>
-        <div className="col-sm-1" onClick={onToggleTimeline}>
-          <a href="#timeline" className="btn btn-primary">
+        <div className="col-sm-1">
+          <a href="#timeline" onClick={onToggleTimeline} className="btn btn-primary">
             Timeline
           </a>
         </div>
