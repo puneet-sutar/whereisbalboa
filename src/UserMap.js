@@ -229,10 +229,10 @@ const TripItem = ({ trip, users, onSelectTrip, selectedTrip }) => {
   return (
     <a href="#" onClick={() => onSelectTrip(trip)} className={className} style={{borderRadius: 0}}>
       <div className="row">
-        <div className="col-sm-3">
-          <img src={imgUrl} style={{ width: 60, height: 60, borderRadius: "50%" }} alt={userName} />
+        <div className="col-sm-2">
+          <img src={imgUrl} style={{ width: 50, height: 50, borderRadius: "50%", border: "#eee solid thin" }} alt={userName} />
         </div>
-        <div className="col-sm-9">
+        <div className="col-sm-10">
           <div className="col-sm-12">
             { name }
           </div>
@@ -276,13 +276,20 @@ const Filters = ({ users, onChange, value, onClear, onToggleTimeline, toggleRYMo
             </div>
             <div className="btn-group">
               <button onClick={onClear} className="btn btn-danger">
-                <div className="glyphicon glyphicon-remove-circle" /> Clear Filters
+                <div className="glyphicon glyphicon-remove" /> Clear Filters
               </button>
             </div>
             <div className="btn-group">
-              <button onClick={onToggleTimeline} className="btn btn-success">
-                <div className="glyphicon glyphicon-play-circle" /> Play Timeline
-              </button>
+              {
+                !timelineMode && <button onClick={onToggleTimeline} className="btn btn-success">
+                  <div className="glyphicon glyphicon-play" /> Play Timeline
+                </button>
+              }
+              {
+                timelineMode && <button onClick={onToggleTimeline} className="btn btn-danger">
+                  <div className="glyphicon glyphicon-stop" /> Stop Timeline
+                </button>
+              }
             </div>
           </div>
         </div>
