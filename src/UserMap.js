@@ -150,46 +150,57 @@ export default class SimpleMap extends Component {
     selectedTrip = timelineMode ? last(timelineTrips) : (selectedTrip || trips[0])
 
     return (
-      <div style={ {margin: "0 auto", width: "100%"} }>
+      <div className="user-map">
         <div className="row">
           <div className="col-sm-12">
-            <Filters onChange={this.onFilterChange}
-                     users={this.userWithTrips()}
-                     value={filters}
-                     onClear={this.onFilterClear}
-                     onToggleTimeline={this.onToggleTimeline}
-                     toggleRYMode={this.toggleRYMode}
-                     togglePostRYMode={this.togglePostRYMode}
-                     timelineMode={timelineMode}
-            />
+            <div className="panel">
+              <div className="panel-body">
+                <Filters onChange={this.onFilterChange}
+                         users={this.userWithTrips()}
+                         value={filters}
+                         onClear={this.onFilterClear}
+                         onToggleTimeline={this.onToggleTimeline}
+                         toggleRYMode={this.toggleRYMode}
+                         togglePostRYMode={this.togglePostRYMode}
+                         timelineMode={timelineMode}
+                />
+              </div>
+            </div>
+
           </div>
         </div>
         <div className="row">
-          <div className="col-sm-9">
-            <GoogleMapReact
-              defaultCenter={this.props.center}
-              defaultZoom={this.props.zoom}
-              center={selectedTrip}
-              options={{fullscreen: true}}
-            >
-              {
-                trips.map(({ lat, lng, name, id, uid }) => {
-                  const user = find(users, user => uid === user.uid)
-                  return (
-                    <AnyReactComponent
-                      key={id}
-                      lat={lat}
-                      lng={lng}
-                      text={name}
-                      user={user}
-                      isSelectedTrip={selectedTrip && selectedTrip.id === id}
-                    />
-                  )
-                })}
-            </GoogleMapReact>
+          <div className="col-sm-9 google-map-container">
+            <div className="google-map">
+              <GoogleMapReact
+                defaultCenter={this.props.center}
+                defaultZoom={this.props.zoom}
+                center={selectedTrip}
+                options={{fullscreen: true}}
+              >
+                {
+                  trips.map(({ lat, lng, name, id, uid }) => {
+                    const user = find(users, user => uid === user.uid)
+                    return (
+                      <AnyReactComponent
+                        key={id}
+                        lat={lat}
+                        lng={lng}
+                        text={name}
+                        user={user}
+                        isSelectedTrip={selectedTrip && selectedTrip.id === id}
+                      />
+                    )
+                  })}
+              </GoogleMapReact>
+            </div>
           </div>
           <div style={{padding: 0}} className="col-sm-3">
-            <TripList key={timelineMode} trips={trips} users={users} selectedTrip={selectedTrip} onSelectTrip={this.onSelectTrip}/>
+            <div className="panel">
+              <div className="panel-body">
+                <TripList key={timelineMode} trips={trips} users={users} selectedTrip={selectedTrip} onSelectTrip={this.onSelectTrip}/>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -257,20 +268,18 @@ const Filters = ({ users, onChange, value, onClear, onToggleTimeline, toggleRYMo
             <span className="glyphicon glyphicon-remove-circle" />
           </a>
         </div>
-        <div className="col-sm-1">
-          <a href="#rymode" onClick={toggleRYMode} className="btn btn-primary">
-            RY year
-          </a>
-        </div>
-        <div className="col-sm-1">
-          <a href="#postrymode" onClick={togglePostRYMode} className="btn btn-primary">
-            Post RY year
-          </a>
-        </div>
-        <div className="col-sm-1">
-          <a href="#timeline" onClick={onToggleTimeline} className="btn btn-primary">
-            Timeline
-          </a>
+        <div className="col-sm-3">
+          <div className="btn-group">
+            <button onClick={toggleRYMode} className="btn btn-primary">
+              RY year
+            </button>
+            <button onClick={togglePostRYMode} className="btn btn-primary">
+              Post RY year
+            </button>
+            <button onClick={onToggleTimeline} className="btn btn-primary">
+              Timeline
+            </button>
+          </div>
         </div>
       </div>
     </div>

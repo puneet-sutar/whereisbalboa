@@ -7,7 +7,8 @@ import './geosuggest.css'
 import 'react-dates/initialize'
 import 'react-dates/lib/css/_datepicker.css';
 import { DateRangePicker } from 'react-dates';
-
+import Select from 'react-select';
+import toastr from 'toastr'
 
 export default class TripList extends React.Component {
 
@@ -26,10 +27,12 @@ export default class TripList extends React.Component {
 
   addNewTrip = (e) => {
     e.preventDefault(); // <- prevent form submit from reloading the page
-    const { address: { location, label }, startDate, endDate } = this.state.form
+    const { address = {}, startDate, endDate, selectedUser } = this.state.form
+    const { location, label } = address
     const disabled = !location || !startDate || !endDate
     if (disabled) return
-    const { user: { uid } } = this.props
+    const { user } = this.props
+    const uid = selectedUser.value || user.uid
     const startTimestamp = startDate.unix()
     const endTimestamp = endDate.unix()
     fire.database().ref(`balboa/trips`).push( {
@@ -39,40 +42,67 @@ export default class TripList extends React.Component {
       startTimestamp,
       endTimestamp,
       uid,
+    }, () => {
+      this.input.clear(); // <- clear the input
+      this.setState({ form: { ...this.state.form, startDate: null, endDate: null}  })
+      toastr.success("Trip added successfully")
     });
-    this.input.clear(); // <- clear the input
+
   }
 
   render() {
     const disabled = !this.state.form.address || !this.state.form.address.location
     const { form } = this.state
     const { startDate, endDate } = form
+    let { selectedUser } = form
+    const { users } = this.props
+    const user = users.filter(user => this.props.user.uid === user.uid)[0] || {}
+    const options = users.map((user) => {
+      return { label: user.name, value: user.uid }
+    })
+
+    selectedUser = selectedUser ? selectedUser : { label: user.name, value: user.uid }
 
     return (
       <div className="row">
-        <div className="co-sm-offset-1 col-sm-10">
-          <div className="address form-group">
-            <Geosuggest
-              ref={(i) => { this.input = i }}
-              inputClassName="form-control"
-              name="address"
-              types={['establishment', 'geocode']}
-              placeholder="Enter your address to get suggestions..."
-              onSuggestSelect={this.onSuggesSelect} />
-          </div>
-          <DateRangePicker
-            startDate={startDate}
-            startDateId="your_unique_start_date_id"
-            endDate={endDate}
-            endDateId="your_unique_end_date_id"
-            onDatesChange={({ startDate, endDate }) => this.setState({ form: { ...form, startDate, endDate } })}
-            isOutsideRange={() => false}
-            required
-            focusedInput={this.state.focusedInput}
-            onFocusChange={focusedInput => this.setState({ focusedInput })}
-          />
-          <div className="form-group">
-            <a className="btn btn-primary" disabled={disabled} onClick={this.addNewTrip}>Add Trip</a>
+        <div className="col-sm-offset-2 col-sm-8">
+          <h3 className="text-center">Input a trip</h3>
+          <div className="panel">
+            <div className="panel-body">
+              <div className="form-group">
+                <Select
+                  name="user"
+                  value={selectedUser}
+                  onChange={selectedOption => this.setState({ form: { ...form, selectedUser: selectedOption } })}
+                  options={options}
+                />
+              </div>
+              <div className="address form-group">
+                <Geosuggest
+                  ref={(i) => { this.input = i }}
+                  inputClassName="form-control"
+                  name="address"
+                  types={['establishment', 'geocode']}
+                  placeholder="Enter your address to get suggestions..."
+                  onSuggestSelect={this.onSuggesSelect} />
+              </div>
+              <div className="form-group">
+                <DateRangePicker
+                  startDate={startDate}
+                  startDateId="your_unique_start_date_id"
+                  endDate={endDate}
+                  endDateId="your_unique_end_date_id"
+                  onDatesChange={({ startDate, endDate }) => this.setState({ form: { ...form, startDate, endDate } })}
+                  isOutsideRange={() => false}
+                  required
+                  focusedInput={this.state.focusedInput}
+                  onFocusChange={focusedInput => this.setState({ focusedInput })}
+                />
+              </div>
+              <div className="form-group">
+                <a className="btn btn-primary" disabled={disabled} onClick={this.addNewTrip}>Add Trip</a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
