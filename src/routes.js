@@ -8,6 +8,7 @@ import Home from './Home'
 import TripList from './TripList'
 import UserMap from './UserMap'
 import Profile from './Profile'
+import Users from './Users'
 
 export default (
   <Route path="/" component={App}>
@@ -15,5 +16,6 @@ export default (
     <Route path="/map" component={UserMap}/>
     <Route path="/triplist" component={TripList}/>
     <Route path="/profile" component={Profile}/>
+    <Route path="/balbabes" component={Users}/>
   </Route>
 )

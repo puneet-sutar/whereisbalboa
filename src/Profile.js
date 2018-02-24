@@ -3,7 +3,10 @@ import Geosuggest from 'react-geosuggest'
 import fire from './fire'
 import moment from 'moment'
 import toastr from 'toastr'
+import Phone from 'react-phone-number-input'
 import "toastr/build/toastr.css"
+import 'react-phone-number-input/rrui.css'
+import 'react-phone-number-input/style.css'
 
 export default class Profile extends React.Component {
 
@@ -46,12 +49,13 @@ export default class Profile extends React.Component {
   uploadProfileData = () => {
     const { user } = this.props
     const update = {uid: user.uid}
-    let { name, cityName, imgUrl, latitude, longitude } = this.state
+    let { name, cityName, imgUrl, latitude, longitude, whatsapp } = this.state
     if (name) update.name = name
     if (cityName) update.cityName = cityName
     if (imgUrl) update.imgUrl = imgUrl
     if (latitude) update.latitude = latitude
     if (longitude) update.longitude = longitude
+    if (whatsapp) update.whatsapp = whatsapp
     fire.database().ref(`balboa/users/${user.uid}`).update(update, () => {
       toastr.success('Profile info updated successfully!')
     });
@@ -64,11 +68,12 @@ export default class Profile extends React.Component {
 
   render () {
 
-    let { name, cityName, imgUrl } = this.state
+    let { name, cityName, imgUrl, whatsapp } = this.state
     const user = this.props.users.filter(u => u.uid === this.props.user.uid)[0] || {}
     name = name || user.name
     cityName = cityName || user.cityName
     imgUrl = imgUrl || user.imgUrl
+    whatsapp = whatsapp || user.whatsapp
 
     return (
       <div className="profile">
@@ -89,6 +94,12 @@ export default class Profile extends React.Component {
                   </div>
                   <div className="col-sm-12">
                     <div className="form-group">
+                      <label className="control-label">Profile Image</label>
+                      <input type="file" id="profileImage" name="profileImage" className="form-control"/>
+                    </div>
+                  </div>
+                  <div className="col-sm-12">
+                    <div className="form-group">
                       <label className="control-label">City</label>
                       <Geosuggest
                         ref={(i) => { this.input = i }}
@@ -102,8 +113,11 @@ export default class Profile extends React.Component {
                   </div>
                   <div className="col-sm-12">
                     <div className="form-group">
-                      <label className="control-label">Profile Image</label>
-                      <input type="file" id="profileImage" name="profileImage" className="form-control"/>
+                      <label className="control-label">Whatsapp</label>
+                      <Phone
+                        placeholder="Enter phone number"
+                        value={ whatsapp }
+                        onChange={ phone => this.onChange({ target: { name: "whatsapp", value: phone } }) } />
                     </div>
                   </div>
                   <div className="col-sm-12">
