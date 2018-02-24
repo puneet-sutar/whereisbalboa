@@ -6,6 +6,7 @@ import moment from 'moment'
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import DateRangeField from './DateRangeField'
+import Navlink from './NavLink'
 
 const AnyReactComponent = ({ text, isSelectedTrip, $hover, user }) => {
   let markerSize = 20;
@@ -153,7 +154,6 @@ export default class SimpleMap extends Component {
       <div className="user-map">
         <div className="row">
           <div className="col-sm-12">
-            <div className="panel">
               <div className="panel-body">
                 <Filters onChange={this.onFilterChange}
                          users={this.userWithTrips()}
@@ -165,8 +165,6 @@ export default class SimpleMap extends Component {
                          timelineMode={timelineMode}
                 />
               </div>
-            </div>
-
           </div>
         </div>
         <div className="row">
@@ -251,8 +249,13 @@ const TripItem = ({ trip, users, onSelectTrip, selectedTrip }) => {
 const Filters = ({ users, onChange, value, onClear, onToggleTimeline, toggleRYMode, togglePostRYMode, timelineMode }) => {
 
   return (
-    <div>
+    <div className="map-filters">
       <div className="row">
+        <div className="col-sm-1">
+          <Navlink to="/" className="btn btn-warning">
+            <span className="glyphicon glyphicon-home" /> Home
+          </Navlink>
+        </div>
         <div className="col-sm-3">
           <UserFilter value={value.users} users={users} onChange={onChange} />
         </div>

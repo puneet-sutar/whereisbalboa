@@ -21,11 +21,19 @@
 
 .google-map-container {
     position: fixed;
-    height: 75%;
+    height: 90%;
 }
 
 .trip-list {
     position: fixed;
     height: 90%;
     overflow: scroll;
+}
+.DateInput .DateInput_input {
+    padding: 4px 4px 4px;
+}
+
+.map-filters {
+    width: 100%;
+    padding: 0;
 }

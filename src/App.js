@@ -48,13 +48,14 @@ export default class App extends React.Component {
 
   render(){
     const { user, loading } = this.state
-    const containerClassName = this.props.router.isActive("/map") ? "container-fluid" : "container"
+    const userMapPage = this.props.router.isActive("/map")
+    const containerClassName = userMapPage ? "container-fluid" : "container"
     if (loading)
       return <div>Loading...</div>
     else if (user) {
       return (
         <div className="main-content">
-          <Navbar />
+          { !userMapPage && <Navbar /> }
           <div className={containerClassName}>
             { React.cloneElement(this.props.children, { ...this.state  }) }
           </div>
